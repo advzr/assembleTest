@@ -1,0 +1,16 @@
+{
+  "production": true,
+  "dest": "dist",
+  "assets": "dist/assets",
+  "data": "data/*.json",
+  "helpers": "templates/helpers/*.js",
+  "partials": "templates/partials/*.hbs",
+  "layoutdir": "templates/layouts",
+  "layout": "default.hbs",
+  "flatten": "true",
+  "prettify": {
+    "indent": 2,
+    "condense": "true",
+    "newlines": "true"
+  }
+}

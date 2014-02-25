@@ -1,0 +1,27 @@
+{
+  "proto": {
+    "class": "",
+    "icon": "proto-icon",
+    "label": "button text"
+  },
+  "email": {
+    "class": "email-button",
+    "icon": "email-icon",
+    "label": "send email"
+  },
+  "like": {
+    "class": "like-button",
+    "icon": "like-icon",
+    "label": "I like it!"
+  },
+  "support": {
+    "class": "support-button",
+    "icon": "support-icon",
+    "label": "donate"
+  },
+  "share": {
+    "class": "share-button",
+    "icon": "share-icon",
+    "label": "share it!"
+  }
+}
