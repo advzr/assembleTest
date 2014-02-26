@@ -1,0 +1,946 @@
+В жизни любого front-end web разработчика наступает такой момент, в который он понимает, что верстка макетов начинает вызывать негативные эмоции. Причина тут в однообразности работы. И если css прероцессоры во многом помогают решить проблему рутинных операций в css, то с html обычно все делается по старинке.
+
+Так в чем собственно проблема? Ведь делали так и продолжают многие делать. Зачем нужны шаблоны во front-end? Попробуем разобраться. Шаблоны не нужны, если ваш проект состоит из одной или нескольких страничек, в которых нет или oчень мало повторяющихся элементов. 
+
+В этом утверждении главная вторая часть. Конечно возможно и такое, что проект из нескольких или даже более макетов содержит в основном уникальные элементы. Но зачастую, такие элементы как шапка, подвал, боковые панели, кнопки, элементы меню и т.п. кочуют из макета в макет. В таком случае, особенно, если проект крупный, внесение изменений в html код этих элементов представляет целую проблему, так как необходимо этот код поправить во всех местах, где эти элементы встречаются, при этом ни одного места не пропустить и не совершить ошибки при правке.
+
+Все это занимает время, ведет к мелким и не очень ошибкам, но, самое главное, это жутко скучное занятие. Как известно, хороший программист - существо ленивое, к тому же чем быстрее выполняется работа, тем больше проектов удастся выполнить, а значит заработать больше денег.
+
+Итак, надеюсь я вас убедил в преимуществах использования шаблонов во front-end. Сегодня мы рассмотрим <a href="http://assemble.io/">Assemble</a> - генератор статических сайтов для <a href="http://nodejs.org/">Node.js</a>, <a href="http://gruntjs.com/">Grunt</a> и <a href="http://yeoman.io/">Yeoman</a>.
+
+<h2>Установка</h2>
+
+Чтобы установить Assemble необходимо, чтобы в системе был <a href="http://nodejs.org/download/">установлен Node.js</a>, а также grunt-cli. Если у вас их еще нет, то установка не займет много времени. Для Windows и Mac есть пакеты для установки, а пользователи Linux найдут Node.js в своих репозиториях. Затем необходимо установить grunt-cli. Это небольшая утилита, которая ищет ближайший уставновленный Grunt в папке с проектом и запускает его. Для этого небоходимо в консоли написать следующее.
+
+Для пользователей Mac и Linux: 
+<code>sudo npm install -g grunt-cli</code>
+
+Для пользователей Windows в консоли запущенной с правами администратора: 
+<code>npm install -g grunt-cli</code>
+
+После этого для доступа к локальным копиям Grunt достаточно будет обращаться с помощью команды <code>grunt</code>.
+
+Я создал <a href="https://github.com/advzr/assembleTest">тестовый проект на Github</a>, на примере которого мы будем рассматривать работу Assemble. Для удобства вы можете либо клонировать проект себе на компьютер:
+
+<code>git clone https://github.com/advzr/assembleTest.git</code>
+
+Либо можно <a href="https://github.com/advzr/assembleTest/archive/master.zip">скачать архив</a>.
+
+После этого необходимо перейти в папку с проектом и установить зависимости. Для этого уже с правами обычного пользователя нужно выполнить:
+
+<code>npm install</code>
+
+Теперь произведем сборку проекта:
+
+<code>grunt</code>
+
+Если все прошло хорошо, то вы должны увидеть что-то вроде этого:
+
+<pre>
+Running "clean:0" (clean) task
+
+Running "assemble:example010" (assemble) task
+Assembling dist/example010/index.html OK
+>> 1 pages assembled.
+
+Running "assemble:example011" (assemble) task
+Assembling dist/example011/index.html OK
+>> 1 pages assembled.
+
+Running "assemble:example012" (assemble) task
+Assembling dist/example012/index.html OK
+>> 1 pages assembled.
+
+Running "assemble:example020" (assemble) task
+Assembling dist/example020/index.html OK
+>> 1 pages assembled.
+
+Running "assemble:example021" (assemble) task
+Assembling dist/example021/index.html OK
+>> 1 pages assembled.
+
+Running "assemble:example022" (assemble) task
+Assembling dist/example022/index.html OK
+>> 1 pages assembled.
+
+Running "assemble:example030" (assemble) task
+Assembling dist/example030/index.html OK
+>> 1 pages assembled.
+
+Running "assemble:example040a" (assemble) task
+Assembling dist/example040/buttons.html OK
+Assembling dist/example040/index.html OK
+>> 2 pages assembled.
+
+Running "assemble:example040b" (assemble) task
+Assembling dist/example040/about.html OK
+>> 1 pages assembled.
+
+Done, without errors.
+</pre>
+
+Для того, чтобы изменения в исходных файлах отразились в итоговых html, необходимо каждый раз запускать из консоли <code>grunt</code>. Конечно можно автоматизировать этот процесс, но во-первых, я постарался максимально упростить учебный проект, чтобы в нем не было ничего лишнего и отвлекающего, во-вторых, вряд ли вам понадобится часто пересобирать проект (и то если вы сахотите в нем поковыряться, что очень приветствуется), в-третьих, настройка Grunt заслуживает отдельной статьи как минимум.
+
+<h2>Общая информация</h2>
+Итак, что мы имеем? Опишем структуру директорий.
+
+<code>data</code> - папка для хранения исходных данных, которые будут использоваться в шаблонах для создания итоговых html файлов.
+<code>dist</code> - папка, в которую выгружаются готовые html странички
+<code>docs</code> - папка для документации проекта (в частности там лежит копия того файла, который вы сейчас читаете)
+<code>example*</code> - папки с исходным кодом страниц, их мы будем изучать очень пристально
+<code>node_modules</code> - папка с зависимостями, которые необходимы для сборки проекта. Если вы не собираетесь изучать исходные коды Grunt, Assemble, Lodash и т.д., то делать там особо нечего.
+<code>templates</code> - папка с глобальными шаблонами, а также вспомогательными плагинами для Assemble.
+<code>config.json</code> - файл с глобальными настройками
+[js]
+{
+  "production": true,
+  "dest": "dist",
+  "assets": "dist/assets",
+  "data": "data/*.json",
+  "helpers": "templates/helpers/*.js",
+  "partials": "templates/partials/*.hbs",
+  "layoutdir": "templates/layouts",
+  "layout": "default.hbs",
+  "flatten": true,
+  "prettify": {
+    "indent": 2,
+    "condense": true,
+    "newlines": true
+  }
+}
+[/js]
+<code>package.json</code> - файл, содержащий общую информацию о проекте, а также отвечающий за зависимости, необходимые для его корректной работы
+[js]
+{
+  "name": "test_project2",
+  "version": "0.0.0",
+  "description": "A test project to try assemble",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dmitry Gavrikov",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "assemble": "~0.4.36",
+    "lodash": "~2.4.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "js-beautify": "~1.4.0"
+  }
+}
+[/js]
+<code>Gruntfile.js</code> - файл с настройками для Grunt. Это наш главный штурвал.
+[js]
+'use strict';
+
+module.exports = function(grunt) {
+
+  // Project configuration.
+  grunt.initConfig({
+    // Project metadata
+    pkg: grunt.file.readJSON('package.json'),
+    site: grunt.file.readJSON('config.json'),
+
+    assemble: {
+      options: {
+        // custom options
+        production: '<%= site.production %>',
+        author: '<%= pkg.author %>',
+        license: '<%= pkg.license %>',
+        // /custom options
+
+        flatten: '<%= site.flatten %>',
+        prettify: '<%= site.prettify %>',
+        helpers: '<%= site.helpers %>',
+        assets: '<%= site.assets %>',
+        data: '<%= site.data %>',
+        partials: '<%= site.partials %>',
+        layoutdir: '<%= site.layoutdir %>',
+        layout: '<%= site.layout %>'
+      },
+      example010: {
+        files: {'<%= site.dest %>/example010/': ['example010/index.hbs']}
+      },
+      example011: {
+        files: {'<%= site.dest %>/example011/': ['example011/index.hbs']},
+        options: {
+          partials: 'example011/partials/*.hbs'
+        }
+      },
+      example012: {
+        files: {'<%= site.dest %>/example012/': ['example012/index.hbs']},
+        options: {
+          layout: 'with_sidebar.hbs'
+        }
+      },
+      example020: {
+        files: {'<%= site.dest %>/example020/': ['example020/index.hbs']},
+        options: {
+          data: 'example020/data/*.json'
+        }
+      },
+      example021: {
+        files: {'<%= site.dest %>/example021/': ['example021/index.hbs']},
+        options: {
+          partials: 'example021/partials/*.hbs',
+          data: 'example021/data/*.json'
+        }
+      },
+      example022: {
+        files: {'<%= site.dest %>/example022/': ['example022/index.hbs']},
+        options: {
+          partials: 'example022/partials/*.hbs',
+          data: 'example022/data/*.json'
+        }
+      },
+      example030: {
+        files: {'<%= site.dest %>/example030/': ['example030/index.hbs']}
+      },
+      example040a: {
+        files: {'<%= site.dest %>/example040/':
+          [
+            'example040/*.hbs',
+            '!example040/about.hbs'
+          ]
+        },
+        options: {
+          partials: 'example040/partials/*.hbs',
+          data: 'example040/data/*.json'
+        }
+      },
+      example040b: {
+        files: {'<%= site.dest %>/example040/': ['example040/about.hbs']},
+        options: {
+          partials: 'example040/partials/*.hbs',
+          data: 'example040/data/*.json',
+          layout: 'with_sidebar.hbs'
+        }
+      }
+    },
+
+    // Before creating new files, remove files from previous build.
+    clean: ['<%= site.dest %>/**/*.html']
+  });
+
+  // Load plugins
+  grunt.loadNpmTasks('assemble');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+
+  // Register task(s).
+  grunt.registerTask('default', ['clean', 'assemble']);
+
+};
+[/js]
+
+Собственно начнем мы с <code>Gruntfile.js</code>.
+
+Если не отвлекаться на общую информацию по Grunt, то состоит он из трех частей: область конфигурации проекта (самая крупная, на ней мы остановимся очень подробно), область загрузки дополнительных плагинов для Grunt и область регистрации заданий. В области регистрации сейчас всего одно задание <code>default</code>, т.е. то, которое будет выполняться при запуске в консоли <code>grunt</code>. В данном случае там выполнится две подзадачи <code>clean</code> и <code>assemble</code>. Первая удаляет все html файлы в папке <code>dist</code>, чтобы быть уверенным, что там не осталось старых файлов от предыдущих сборок. Вторая непосредственно отвечает за сборку html файлов.
+
+Перейдем к конфигурации Grunt. 
+
+[js]
+  // Project configuration.
+  grunt.initConfig({
+    // Project metadata
+    pkg: grunt.file.readJSON('package.json'),
+    site: grunt.file.readJSON('config.json'),
+
+    assemble: {
+      options: {
+        // custom options
+        production: '<%= site.production %>',
+        author: '<%= pkg.author %>',
+        license: '<%= pkg.license %>',
+        // /custom options
+
+        flatten: '<%= site.flatten %>',
+        prettify: '<%= site.prettify %>',
+        helpers: '<%= site.helpers %>',
+        assets: '<%= site.assets %>',
+        data: '<%= site.data %>',
+        partials: '<%= site.partials %>',
+        layoutdir: '<%= site.layoutdir %>',
+        layout: '<%= site.layout %>'
+      },
+[/js]
+
+Grunt умеет считывать json файлы и конвертировать их в Javascript объекты для дальнейшего использования. Собственно это и происходит в строках № 4-5. Теперь можно получить доступ к данным файлов <code>package.json<code> и <code>config.json<code> из плагинов Grunt. Это может быть иногда полезно, и скоро мы посмотрим примеры. Если файл <code>package.json</code> является по сути обязательным, то <code>config.json</code> я создал просто так, чтобы сгруппировать наиоболее важные настройки в одном месте. Т.е. можно было обойтись без него и писать сразу в <code>Gruntfile.js</code>, но так просто удобнее.
+
+Глобальные настройки <code>Assemble</code> производятся в объекте <code>options</code>. При этом он поддерживает как <a href="http://assemble.io/docs/Options.html">встроенные опции</a>, так и пользовательские.
+
+Пользовательские опции в данном случае сгруппированы в строках 9-13. По сути, пользовательские опции - это любые значения, которые не являются встроенными. Они ничего не делают, но к ним можно получить доступ из любого шаблона. Т.е. это свого рода глобальные переменные-константы, которые всегда под рукой.
+
+Так как у нас есть <code>Lodash</code> в завимостях, то таким вот простым способом мы можем обратиться к свойствам <code>pkg</code> и <code>site</code>, в которых у нас хранятся файлы <code>package.json</code> и <code>config</code>.
+
+Теперь перейдем непосредственно к встроенным опциям <code>Assemble</code>. <strong><code>flatten</code></strong> имеет логическое значение, и в случае <code>true</code> упрощает конечную структуру каталогов, отбрасывая ту часть, которая идет от корня проекта до файлов с шаблонами. Чтобы лучше понять о чем речь, поменяйте значение <code>flatten</code> в <code>false</code> в <code>config.json</code> и пересоберите проект. Чтобы вернуть как было сперва можете удалить папку <code>dist</code>, потом вернуть значение <code>flatten</code> и снова пересобрать проект, так как задача <code>clean</code> чистит только html файлы, но не трогает структуру каталогв.
+
+<strong><code>prettify</code></strong> хранит настроки для вспомогательной функции, которая хранится в папке <code>templates/helpers</code>. Т.е. этот параметр нужен только, если мы используем эту вспомогательную функцию.
+
+<strong><code>helpers</code></strong> содержит путь к вспомогательным функциям <code>Assemble</code>.
+
+<strong><code>assets</code></strong> содержит путь к общим файлам для всех html файлов. Обычно это каталоги со стилями css, картинками и Javascript файлами. В данном случае в проекте они не предусмотрены, так как для генерации html они не важны, и их организация довольно индивидуальна. Но предполагается, что они находятся в <code>dist/assets</code>. Уникальность этой опции в том, что использование переменной <code>assets</code> внутри шаблонов приводит к созданию корректных относительных путей в конечных файлах, что очень удобно.
+
+Опция <strong><code>data</code></strong> отвечает за путь к файлам с глобальными данными. Доступ к ним можно получить из любого шаблона.
+
+<strong><code>partials</code></strong> хранит путь к шаблонам виджетов. Так как это глобальная опция, то вставить виджет, хранящийся по указанному пути можно опять же из любого шаблона.
+
+<strong><code>layoutdir</code></strong> содержит путь к директории с общими планами страниц. Если его указать, то в <strong><code>layout</code></strong> достаточно указать лишь имя файла без полного пути к нему.
+
+У вас наверняка возник вопрос, в чем разница между <code>layout</code> и <code>partial</code>? И то, и другое является шаблоном, но цели у них разные. <code>layout</code> - шаблон, отвечающий за общее устройство страницы, в который вставляются <code>partials</code> (или еще их называют includes) и шаблоны страниц. Если объяснять на примере, то шаблон страницы с шапкой, подвалом и боковой панелью будет <code>layout</code>, а шаблон какой-нибудь кнопки или меню - <code>partial</code>.
+
+<h2>Пример 010</h2>
+
+Начнем с самого простого примера. В Grunt плагины в своих конфигах помимо объектов с настройками имеют цели (targets), на которые будет распространяться действие плагина. Для данного примера такой целью является <code>example010</code>.
+
+[js]
+example010: {
+  files: {'<%= site.dest %>/example010/': ['example010/index.hbs']}
+},
+[/js]
+
+Свойство <code>files</code> в целях плагина указывает исходный файл и пункт назначения. В данном случае запись говорит, что надо взять шаблон <code>example010/index.hbs</code> и положить результат его обработки в папку <code>example010</code>, которая находится внутри папки назначения (dest от destination). Как мы помним в нашем глобальном конфиге, папкой назначения является <code>dist</code> (от distribution)
+
+В этом примере в шаблоне <code>index.hbs</code> не содержится ничего интересного. Там просто несколько тегов <code>p</code> с Lorem ipsum.
+
+Откроем <code>templates/layouts/default.hbs</code>. Согласно наших настроек, это <code>layout</code> по умолчанию.
+
+[html]
+{{#prettify}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{> head }}
+  </head>
+  <body>
+
+    {{> header }}
+
+    <!-- Content -->
+    <div class="main-content">
+      {{> body }}
+    </div>
+
+    {{> footer }}
+  </body>
+</html>
+{{/prettify}}
+[/html]
+
+Assemble использует по умолчанию шаблонизатор <a href="http://handlebarsjs.com/">Handlebars</a>. Даже если ранее вы с ним дел не имели, это не повод пугаться. Он довольно прост и удобен. Вставка кода осуществляется между парными фигурными скобками <code>{{}}</code>. Собственно от сюда его и название. 
+
+На строках №1 и №19 осуществляется вызов вспомогательной функции <code>prettify</code>. Т.е. данный код говорит, что надо весь код странички пропустить через функцию <code>prettify</code>. Это не обязательно делать, но так итоговый код получается более красивым.
+
+Вставка <code>partials</code> в Handlebars осуществляется с помощью символа "больше" <code>></code>. В частности в данный layout осуществляются вставки <code>head, header, body, footer</code>. В шаблоне достаточно лишь указать название файла с шаблоном без расширения. Путь к шаблонам мы уже указали в глобальных настройках.
+
+Partial под названием <code>body</code> является особенным. Вместо него вставляется код созданный по шаблону из целей (targets), прописанных в конфиге <code>Gruntfile.js</code>. Т.е. вместо <code>{{> body }}</code> будет вставлен результат обработки шаблона <code>index.hbs</code>.
+
+Посмотрим внимательнее на <code>head.hbs</code>
+
+[html]
+<!-- Head -->
+<meta charset="UTF-8">
+<title>Assemble Examples</title>
+<meta name="viewport" content="user-scalable=no,initial-scale = 1.0,maximum-scale = 1.0">
+<link rel="stylesheet" href="{{assets}}/css/style.css">
+<script src="{{#if production}}{{assets}}/js/app.min.js{{else}}{{assets}}/js/app.js{{/if}}"></script>
+[/html]
+
+Обратите внимание на строку №6. В ней показан пример условного оператора Handlebars. Вы наверняка помните, что мы задавали пользовательскую опцию <code>production</code>. Вот здесь она нам пригодилась. Если она указана как <code>true</code>, то будет подгружаться минифицированная версия Javascript. В противном случае - обычная. Так как сжатие Javascript занимает достаточное время, то удобнее во время разработки его не использовать. Таким образом, для переключения между сжатой и несжатой версией Javascript досаточно поменять только одну переменную в <code>config.json</code>. Переменная <code>assets</code> отвечает за создание правильных относительных ссылок до каталога с общими файлами (конечно, как вы уже знаете, в нашем проекте их нет, но ведь в реальном-то будут).
+
+Файл <code>header.hbs</code> формирует шапку и примечателен лишь одним.
+
+[html]
+<!-- Header -->
+<header class="main-header">
+  {{> main_logo }}
+
+  <nav class="main-nav">
+    <ul>
+      <li>
+        <a href="#">Home</a>
+      </li>
+      <li>
+        <a href="#">Production</a>
+      </li>
+      <li>
+        <a href="#">About</a>
+      </li>
+    </ul>
+  </nav>
+</header>
+[/html]
+
+На строке №3 происходит вставка еще одного partial, чей шаблон находится в <code>main_logo.hbs</code>. Этот пример показывает, что шаблоны partials можно вкладывать друг в друга, что очень удобно.
+
+И наконец посмотрим на файл <code>footer.hbs</code>
+
+[html]
+<!-- Footer -->
+<footer class="main-footer">
+  <p class="copyright">Authored by {{author}} in 2014 under {{license}}.</p>
+</footer>
+[/html]
+
+Взгляните на использование переменных <code>author</code> и </code>license</code>. А ведь они берутся у нас из <code>package.json</code>. Мелочь, а удобно. Мало ли, вдруг поменяется состав авторов или лицензия. В шаблоне это уже отражено.
+
+Вообще, как использовать сторонние данные, вы ограничены только своей фантазией. Так, допустим можно приписывать номер версии релиза проекта к папке назачения. Тогда все файлы будут собираться в папке <code>dist/0.1.0</code> или <code>dist/0.2.0</code>. Кто знает, может быть для вашего проекта будет важно иметь собранными несколько его версий одновременно.
+
+В остальном этот пример является наиоболее простым - берутся куски html кода из разных мест и собираются в единое целое. Итоговый код выглядит следующим образом.
+
+[html]
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Head -->
+    <meta charset="UTF-8">
+    <title>Assemble Examples</title>
+    <meta name="viewport" content="user-scalable=no,initial-scale = 1.0,maximum-scale = 1.0">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/app.min.js"></script>
+  </head>
+  <body>
+
+    <!-- Header -->
+    <header class="main-header">
+      <h1>Company Logo</h1>
+      <nav class="main-nav">
+        <ul>
+          <li>
+            <a href="#">Home</a>
+          </li>
+          <li>
+            <a href="#">Production</a>
+          </li>
+          <li>
+            <a href="#">About</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Content -->
+    <div class="main-content">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis in dolor porta, pulvinar elit quis, porta ipsum. Nunc adipiscing nec enim at fringilla. Aliquam id augue vulputate, luctus urna eget, viverra turpis. Vestibulum tincidunt rutrum urna,
+        sed ullamcorper neque ornare sit amet. Praesent adipiscing sem id tincidunt hendrerit. Integer nec erat tempor, dignissim urna et, laoreet elit. Fusce vitae lorem convallis purus condimentum vehicula. Nam pellentesque laoreet lacus in rutrum.
+        Nulla ut accumsan est. Praesent hendrerit erat at ullamcorper ornare. Nulla facilisi. Ut eros nisi, pharetra eget adipiscing sed, elementum non lorem. Duis suscipit magna pulvinar, cursus sem ut, eleifend neque. In posuere libero eros, sed gravida
+        eros sagittis a. Donec ac eros at nunc dignissim vestibulum. Nam luctus ligula sed arcu consectetur, at auctor lacus rutrum.</p>
+      <p>Sed id consequat ante. Fusce vitae mollis tortor, vitae venenatis purus. Nunc dolor elit, viverra vel dui sed, ultricies mattis justo. Suspendisse elementum imperdiet lectus, sit amet pellentesque quam interdum in. In posuere fermentum tempus. Aliquam
+        non odio nisi. Morbi at posuere libero. Nulla blandit tempor libero, tincidunt tincidunt nulla tincidunt ut. Integer turpis tortor, ullamcorper sed mollis a, sodales eget arcu.</p>
+      <p>Pellentesque id diam dapibus, volutpat odio eget, gravida orci. In vehicula dapibus quam. Etiam eu laoreet ipsum. Fusce sagittis tortor id pulvinar pharetra. Nam id scelerisque dui. In malesuada convallis orci eget mattis. Quisque id tellus ut lacus
+        aliquet laoreet. Morbi laoreet dui sit amet felis cursus congue. Maecenas eu porttitor massa. Sed tristique ante sed ante bibendum pharetra.</p>
+      <p>Fusce condimentum sollicitudin purus ut hendrerit. Sed ac porta risus, nec blandit eros. Curabitur eleifend feugiat varius. Curabitur tincidunt feugiat libero, sit amet condimentum orci consectetur aliquam. Morbi ac adipiscing felis. Sed bibendum
+        molestie congue. Ut ut diam felis. Suspendisse et magna ligula. Etiam lobortis dapibus euismod. Fusce porta libero diam, a mollis libero consectetur fermentum. Quisque dictum elementum enim vulputate feugiat. Curabitur a mollis erat. Duis id bibendum
+        massa.</p>
+      <p>Donec tristique vehicula ipsum et sagittis. Duis eget urna eros. Fusce tincidunt, dolor eget mattis tempor, ligula dui egestas purus, non pellentesque arcu arcu ultrices nunc. Cras sit amet ornare tellus. Nullam nunc nisi, suscipit ac sollicitudin
+        vel, fringilla quis purus. Sed pellentesque est enim, et lobortis lectus faucibus id. Suspendisse iaculis aliquet turpis nec imperdiet. Nunc quis velit interdum, convallis sapien in, sollicitudin nisl. Aliquam elementum sapien sodales purus bibendum
+        tristique. In in orci nec nibh ullamcorper molestie. Vestibulum commodo ipsum sit amet nulla sagittis, interdum molestie felis vulputate. Ut ac elit vitae neque suscipit pretium. Nullam aliquet urna tincidunt aliquet molestie. Sed commodo urna
+        sit amet venenatis dictum.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <p class="copyright">Authored by Dmitry Gavrikov in 2014 under MIT.</p>
+    </footer>
+  </body>
+</html>
+[/html]
+
+<h2>Пример 011</h2>
+
+Опции можно перезадавать для отдельной цели. При этом те, которые не былы перезаданы, остаются с глобальными значениями.
+
+[js]
+example011: {
+  files: {'<%= site.dest %>/example011/': ['example011/index.hbs']},
+  options: {
+    partials: 'example011/partials/*.hbs'
+  }
+},
+[/js]
+
+В примере 011 перезадано свойство <code>partials</code>. В этом случае шаблоны, указанные в даннной цели (а он у нас один - <code>example011/index.hbs</code>) получают доступ к новым partials. Это удобно, если необходимо разбить шаблон страницы на какие-то логические блоки, но при этом не хочется захламлять ими глобальные partials, и не давая к ним доступ для других страниц. При этом переопределение опции <code>partials</code> происходит мягко - новые partials не заменяют собой глобальные, а добавляются к ним.
+
+Рассмотрим шаблон страницы <code>example011/index.hbs</code>.
+
+[html]
+<header>
+  {{> main_logo }}
+</header>
+
+{{> p1 }}
+{{> p2 }}
+{{> p3 }}
+{{> p4 }}
+{{> p5 }}
+[/html]
+
+Как мы видим, доступ к глобальным partials никуда не делся, мы по-прежнему можем вставить глобальный partial <code>main_logo</code>. Однако вместе с этим, мы разбили нашу рыбу с Lorem ipsum на 5 локальных partials. В результате код шаблона стал более лаконичным и понятным.
+
+Результат сборки данного примера идентичен предыдущему, поэтому приводить его не имеет смысла.
+
+<h2>Пример 012</h2>
+
+Страницы сайтов редко имеют одинаковую структуру. Это могут быть страницы с несколькими боковыми панелями или без них. Элементы в этих панелях, шапке или подвале также могут меняться. Однако, одни и те же наборы элементов могут встречаться несколько раз для разных макетов, в которых уникальной остается только, допустим, центральная часть макета.
+
+Мы могли бы, к примеру, переносить всю структуру страницы в шаблон страницы, оставляя лишь простенький layout, в котором к шаблону страницы добавлялся бы доктайп и тег </code>head</code>. Однако, в этом случае мы получим много дублирующего кода. Правильнее выделить идентичные структуры страниц и под каждую написать свой layout, чтобы потом при необходимости использовать тот или иной.
+
+В нашем layout по умолчанию есть шапка, подвал и область с контентом. Предположим, что нам также понадобилось создавать страницы с боковой панелью. Нет ничего проще. Для этого мы создаем новый layout <code>templates/layouts/with_sidebar.hbs</code>.
+
+[html]
+{{#prettify}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {{> head }}
+  </head>
+  <body>
+
+    {{> header }}
+
+    <!-- Content -->
+    <div class="main-content">
+      {{> body }}
+    </div>
+
+    {{> sidebar }}
+
+    {{> footer }}
+  </body>
+</html>
+{{/prettify}}
+[/html]
+
+Как мы видим, отличие его от предыдущего только в добавлении partial <code>sidebar</code>, который содержит разметку боковой панели.
+
+[html]
+<!-- Sidebar -->
+<aside class="main-sidebar">
+  <nav class="secondary-nav">
+    <ul>
+      <li>
+        <a href="#">menu 1</a>
+      </li>
+      <li>
+        <a href="#">menu 2</a>
+      </li>
+      <li>
+        <a href="#">menu 3</a>
+      </li>
+    </ul>
+  </nav>
+</aside>
+[/html]
+
+Теперь осталось лишь переопределить layout для цели в <code>Gruntfile.js</code>. Так как мы определили опицию <code>layoutdir</code>, то нам достаточно лишь указать имя файла нашего layout.
+
+[js]
+example012: {
+  files: {'<%= site.dest %>/example012/': ['example012/index.hbs']},
+  options: {
+    layout: 'with_sidebar.hbs'
+  }
+},
+[/js]
+
+В результате получим такой html файл на выходе.
+
+[html]
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Head -->
+    <meta charset="UTF-8">
+    <title>Assemble Examples</title>
+    <meta name="viewport" content="user-scalable=no,initial-scale = 1.0,maximum-scale = 1.0">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/app.min.js"></script>
+  </head>
+  <body>
+
+    <!-- Header -->
+    <header class="main-header">
+      <h1>Company Logo</h1>
+      <nav class="main-nav">
+        <ul>
+          <li>
+            <a href="#">Home</a>
+          </li>
+          <li>
+            <a href="#">Production</a>
+          </li>
+          <li>
+            <a href="#">About</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Content -->
+    <div class="main-content">
+      <header>
+        <h1>Company Logo</h1>
+      </header>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis in dolor porta, pulvinar elit quis, porta ipsum. Nunc adipiscing nec enim at fringilla. Aliquam id augue vulputate, luctus urna eget, viverra turpis. Vestibulum tincidunt rutrum urna,
+        sed ullamcorper neque ornare sit amet. Praesent adipiscing sem id tincidunt hendrerit. Integer nec erat tempor, dignissim urna et, laoreet elit. Fusce vitae lorem convallis purus condimentum vehicula. Nam pellentesque laoreet lacus in rutrum.
+        Nulla ut accumsan est. Praesent hendrerit erat at ullamcorper ornare. Nulla facilisi. Ut eros nisi, pharetra eget adipiscing sed, elementum non lorem. Duis suscipit magna pulvinar, cursus sem ut, eleifend neque. In posuere libero eros, sed gravida
+        eros sagittis a. Donec ac eros at nunc dignissim vestibulum. Nam luctus ligula sed arcu consectetur, at auctor lacus rutrum.</p>
+      <p>Sed id consequat ante. Fusce vitae mollis tortor, vitae venenatis purus. Nunc dolor elit, viverra vel dui sed, ultricies mattis justo. Suspendisse elementum imperdiet lectus, sit amet pellentesque quam interdum in. In posuere fermentum tempus. Aliquam
+        non odio nisi. Morbi at posuere libero. Nulla blandit tempor libero, tincidunt tincidunt nulla tincidunt ut. Integer turpis tortor, ullamcorper sed mollis a, sodales eget arcu.</p>
+      <p>Pellentesque id diam dapibus, volutpat odio eget, gravida orci. In vehicula dapibus quam. Etiam eu laoreet ipsum. Fusce sagittis tortor id pulvinar pharetra. Nam id scelerisque dui. In malesuada convallis orci eget mattis. Quisque id tellus ut lacus
+        aliquet laoreet. Morbi laoreet dui sit amet felis cursus congue. Maecenas eu porttitor massa. Sed tristique ante sed ante bibendum pharetra.</p>
+      <p>Fusce condimentum sollicitudin purus ut hendrerit. Sed ac porta risus, nec blandit eros. Curabitur eleifend feugiat varius. Curabitur tincidunt feugiat libero, sit amet condimentum orci consectetur aliquam. Morbi ac adipiscing felis. Sed bibendum
+        molestie congue. Ut ut diam felis. Suspendisse et magna ligula. Etiam lobortis dapibus euismod. Fusce porta libero diam, a mollis libero consectetur fermentum. Quisque dictum elementum enim vulputate feugiat. Curabitur a mollis erat. Duis id bibendum
+        massa.</p>
+      <p>Donec tristique vehicula ipsum et sagittis. Duis eget urna eros. Fusce tincidunt, dolor eget mattis tempor, ligula dui egestas purus, non pellentesque arcu arcu ultrices nunc. Cras sit amet ornare tellus. Nullam nunc nisi, suscipit ac sollicitudin
+        vel, fringilla quis purus. Sed pellentesque est enim, et lobortis lectus faucibus id. Suspendisse iaculis aliquet turpis nec imperdiet. Nunc quis velit interdum, convallis sapien in, sollicitudin nisl. Aliquam elementum sapien sodales purus bibendum
+        tristique. In in orci nec nibh ullamcorper molestie. Vestibulum commodo ipsum sit amet nulla sagittis, interdum molestie felis vulputate. Ut ac elit vitae neque suscipit pretium. Nullam aliquet urna tincidunt aliquet molestie. Sed commodo urna
+        sit amet venenatis dictum.</p>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="main-sidebar">
+      <nav class="secondary-nav">
+        <ul>
+          <li>
+            <a href="#">menu 1</a>
+          </li>
+          <li>
+            <a href="#">menu 2</a>
+          </li>
+          <li>
+            <a href="#">menu 3</a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <p class="copyright">Authored by Dmitry Gavrikov in 2014 under MIT.</p>
+    </footer>
+  </body>
+</html>
+[/html]
+
+<h2>Пример 020</h2>
+
+До настоящего момента мы только склеивали куски заранее подготовленного html кода между собой и пользовались глобальными переменными. Однако часто бывает, что разметка у какого-то элемента не меняется, но меняется ее наполнение данными. Это может быть, к примеру, новый текст на кнопке или в заголовке, новый или дополнительный класс css, новый атрибут и т.д.
+
+Конечно можно создавать новый partial для каждого такого случая, и опять же просто стыковать куски готового html кода. Однако, если нам понадобится внести изменения в разметку этого элемента, придется также вносить их в каждом partial. Это конечно не так муторно, как было бы вносить изменения при каждом использовании того или иного элемента на странице, но тем не менее. Неужели мы не можем придумать более удобный способ?
+
+Можем. Для этого нам надо разделить разметку и данные и научиться передавать эти данные в шаблон.
+
+Обратимся к определению цели в данном примере.
+
+[js]
+example020: {
+  files: {'<%= site.dest %>/example020/': ['example020/index.hbs']},
+  options: {
+    data: 'example020/data/*.json'
+  }
+},
+[/js]
+
+Здесь переопределена опция <code>data</code>, которая подклюачет все <code>json</code> файлы внутри <code>example020/data</code>. Аналогично опции <code>partials</code>, опция <code>data</code> не перезаписывает ссылку на файлы с глобальными данными, а добавляет к ним локальные. Assemble умеет обрабатывать данные в формате JSON, YAML и YAML Front-Matter. В данном проекте мы будем использовать JSON формат.
+
+Теперь давайте посмотрим на файл с данными <code>example020/data/text.json</code> и макет страницы <code>example020/index.hbs</code>.
+
+[js]
+{
+  "p1": "Lorem ipsum dolor ...",
+  "p2": "Sed id consequat ...",
+  "p3": "Pellentesque id diam ...",
+  "p4": "Fusce condimentum sollicitudin ...",
+  "p5": "Donec tristique vehicula ..."
+}
+[/js]
+
+Многоточия в Lorem ipsum я добавил, чтобы не захламлять экран бесполезной информацией.
+
+[html]
+<p>{{text.p1}}</p>
+<p>{{text.p2}}</p>
+<p>{{text.p3}}</p>
+<p>{{text.p4}}</p>
+<p>{{text.p5}}</p>
+[/html]
+
+Как вы видите, обращение к данным идет по шаблону <название файла>.<название свойства>. Если бы в свойствах <code>p1, p2</code> и т.д. содержались не примитивы, а объекты, то мы могли бы продолжить цепочку свойств через точку. В общем все как в обычном Javascript.
+
+Результат выполнения этого шаблона будет аналогичен предыдущим примерам.
+
+<h2>Пример 021</h2>
+
+В предыдущем примере мы сразу вставляли данные в шаблон. Но что если нам захочется написать общий шаблон partial и передавать данные непосредственно в него? Больше всего эта ситуация напоминает вызов функции, которой передаются данные в виде аргумента.
+
+Посмотрим на исходные файлы.
+
+</code>Gruntfile.js</code>
+[js]
+example021: {
+  files: {'<%= site.dest %>/example021/': ['example021/index.hbs']},
+  options: {
+    partials: 'example021/partials/*.hbs',
+    data: 'example021/data/*.json'
+  }
+},
+[/js]
+
+<code>example021/data/text.json</code>
+[js]
+{
+  "p1": "Lorem ipsum dolor ...",
+  "p2": "Sed id consequat ...",
+  "p3": "Pellentesque id diam ...",
+  "p4": "Fusce condimentum sollicitudin ...",
+  "p5": "Donec tristique vehicula ..."
+}
+[/js]
+
+<code>example021/index.hbs</code>
+[html]
+<p>{{> text text.p1}}</p>
+<p>{{> text text.p2}}</p>
+<p>{{> text text.p3}}</p>
+<p>{{> text text.p4}}</p>
+<p>{{> text text.p5}}</p>
+[/html]
+
+В определении цели мы подключили локальные partials, данные остались без изменений, а вот шаблон страницы заслуживает отдельного внимания.
+
+Видно, что в нем происходит вызов partial <code>text</code>, так как ему предшествует знак "больше", но также через пробел идет указание данных, которые нужно передать этому partial.
+
+Так как, к примеру, переменная text.p1 (если ее можно назвать переменной) уже ссылается на строковый примитив, то шаблону остается лишь принять его как есть. Для этого в шаблоне используется ключевое слово <code>this</code> или точка "<code>.</code>".
+
+<code>example021/partials/text.hbs</code>
+[html]
+{{this}}
+[/html]
+
+Конечно, это очень упрощенный пример и в реальном проекте вряд ли бы понадобилось выделять подобный partial. Но суть передачи данных в шаблон partial стала понятна, и скоро мы рассмотрим более сложный пример.
+
+Опять же результат выполнения шаблона аналогичен предыдущим примерам.
+
+<h2>Пример 022</h2>
+
+В предыдущем примере мы посмотрели как передавать данные в шаблон partial, если он представлен в виде ассоциативного массива. Однако, часто данные могут быть однотипными, и для их хранения больше подходит обыкновенный массив. Даже в нашем примере нет необходимости выделять каждый параграф в отдельное свойство, ведь они однотипны между собой. Также примерами однотипных данных могут служить данные во всевозможных списках, а это непосредственно сами списки, и элементы меню, навигация и т.д.
+
+В таком случае нам нужен удобный способ обработки данных в обыкновенных массивах. Как вы наверняка догадались, в Handlebars такой способ есть - это конструкция <code>#each</code>
+
+Рассмотрим исходный код примера.
+
+<code>Gruntfile.js</code>
+[js]
+example022: {
+  files: {'<%= site.dest %>/example022/': ['example022/index.hbs']},
+  options: {
+    partials: 'example022/partials/*.hbs',
+    data: 'example022/data/*.json'
+  }
+},
+[/js]
+
+<code>example022/data/text.json</code>
+[js]
+[
+  "Lorem ipsum dolor ...",
+  "Sed id consequat ...",
+  "Pellentesque id diam ...",
+  "Fusce condimentum sollicitudin ...",
+  "Donec tristique vehicula ..."
+]
+[/js]
+
+<code>example022/partials/text.hbs</code>
+[html]
+{{this}}
+[/html]
+
+<code>example022/index.hbs</code>
+[html]
+{{#each text}}
+  <p>{{> text }}</p>
+{{/each}}
+[/html]
+
+Как видно из кода, данные теперь у нас хранятся в виде обыкновенного массива. Но самое интересное происходит в шаблоне страницы <code>example022/index.hbs</code>. Конструкции <code>#each</code> передается ссылка на наш массив с данными. После этого для каждого элемента массива будет осуществлена вставка шаблона partial <code>text</code>, обернутого в тег <code>p</code>, и в него будут переданы данные этого элемента. Отдельно передавать данные partial <code>text</code> внутри конструкции <code>#each</code> не требуется, но если для вас будет более логичным запись вида
+
+<code>{{> text this}}</code>
+
+, то это тоже допускается.
+
+Опять же итоговый html код будет аналогичным предыдущим примерам, но зато насколько более логичным стал наш исходный код.
+
+<h2>Пример 030</h2>
+
+Итак, настало время для более реального примера. Рассмотрим то, что можно назвать наследованием в html коде.
+
+Предположим в макетах, присланных дизайнером, есть повторяющийся элемент - кнопка. Однако, элемент хоть и повторяется, не он не одинаков. Различается надпись на кнопке и иконка. Но в целом это одна и та же кнопка. Неужели мы будем писать html код для каждой кнопки? Да ни за что. Мы же уже знаем, что мы умеем писать общие шаблоны и передавать в них данные. Этим и займемся.
+
+Так как этот элемент повторяется на разных макетах, то имеет смысл сделать этот partial глобальным. Так и поступим.
+
+<code>templates/partials/button.hbs</code>
+[html]
+<button class="button {{class}}">
+  <span class="icon {{icon}}"></span>
+  <span class="text">{{label}}</span>
+</button>
+[/html]
+
+Здесь мы будем добавлять дополнительный css класс к кнопке, который будет добавлять новые свойства уникальные для конкретного вида кнопки. Аналогично поступим с иконкой (в классе <code>{{icon}}</code>, к примеру, может быть прописано свойство <code>background-image:</code> или <code>background-position:</code>, если речь идет о спрайте). Если бы мы использовали препроцессоры, то скорее всего у кнопки и иконки былo бы по одному css классу, который бы расширял базовые классы <code>button</code> и <code>icon</code>, но это уже детали и дело вкуса.
+
+Текст, расположенный на кнопке, будет передаваться в переменной <code>label</code>.
+
+Раз уж мы создали глобальный partial, то логично данные для него также сделать глобальными, чтобы можно было из любого шаблона иметь к ним доступ. Для этого создадим файл <code>data/buttons.json<code>.
+
+[js]
+{
+  "proto": {
+    "class": "",
+    "icon": "proto-icon",
+    "label": "button text"
+  },
+  "email": {
+    "class": "email-button",
+    "icon": "email-icon",
+    "label": "send email"
+  },
+  "like": {
+    "class": "like-button",
+    "icon": "like-icon",
+    "label": "I like it!"
+  },
+  "support": {
+    "class": "support-button",
+    "icon": "support-icon",
+    "label": "donate"
+  },
+  "share": {
+    "class": "share-button",
+    "icon": "share-icon",
+    "label": "share it!"
+  }
+}
+[/js]
+
+В нем мы прописали 5 видов кнопок. Базовый вид - <code>proto</code> - нужен нам к примеру для размещения на демонстрационной странице, в которой будут расположены все используемые в проекте виджеты. Также начинать писать css код лучше для него, добавляя уже уникальные свойства для других видов кнопок. Теперь, если нам понадобится добавить новый вид кнопки или изменить предыдущий, то достаточно будет всего лишь внести изменения в <code>data/buttons.json</code>.
+
+А теперь посмотрим, как нам вставить ту или иную кнопку на страницу.
+
+<code>example030/index.hbs</code>
+[html]
+<div class="buttons">
+  {{> button buttons.email }}
+  {{> button buttons.like }}
+  {{> button buttons.support }}
+  {{> button buttons.share }}
+</div>
+[/html]
+
+Как вы видите, все достаточно просто. В результате получим следующий итоговый html файл.
+
+[html]
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Head -->
+    <meta charset="UTF-8">
+    <title>Assemble Examples</title>
+    <meta name="viewport" content="user-scalable=no,initial-scale = 1.0,maximum-scale = 1.0">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/app.min.js"></script>
+  </head>
+  <body>
+
+    <!-- Header -->
+    <header class="main-header">
+      <h1>Company Logo</h1>
+      <nav class="main-nav">
+        <ul>
+          <li>
+            <a href="#">Home</a>
+          </li>
+          <li>
+            <a href="#">Production</a>
+          </li>
+          <li>
+            <a href="#">About</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Content -->
+    <div class="main-content">
+      <div class="buttons">
+        <button class="button email-button">
+          <span class="icon email-icon"></span>
+          <span class="text">send email</span>
+        </button>
+        <button class="button like-button">
+          <span class="icon like-icon"></span>
+          <span class="text">I like it!</span>
+        </button>
+        <button class="button support-button">
+          <span class="icon support-icon"></span>
+          <span class="text">donate</span>
+        </button>
+        <button class="button share-button">
+          <span class="icon share-icon"></span>
+          <span class="text">share it!</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+      <p class="copyright">Authored by Dmitry Gavrikov in 2014 under MIT.</p>
+    </footer>
+  </body>
+</html>
+[/html]
+
+<h2>Пример 040</h2>
+
+В качестве закрепления материала рассмотрим как соотносятся директории с исходными файлами, цели в <code>Gruntfile.js</code>, и директории в <code>dist</code>.
+
+Assemble, как и Grunt, являются очень гибкими. Они не навязывают какую-то свою структуру каталогов, порядок именования файлов и т.д. В данном проекте локальные файлы находились в отдельных каталогах, но никто не мешал, к примеру, разместить их вместе с глобальными или выделить их все в какой-нибудь отдельный каталог <code>local</code>. Главное, чтобы пути к необходимым файлам были правильно прописаны в <code>Gruntfile.js</code>.
+
+Цели (targets) в <code>Gruntfile.js</code> - это набор инструкций объединенных общим набором опций. В этом проекте есть четкое разделение один каталог с исходными файлами - одна цель - один каталог с выходными файлами в папке <code>dist</code>. Это было сделано для наглядности. Однако даже сейчас можно лекго объеденить несколько целей в одну, а если поработать над названиями файлов исходников, то вполне возможно, что можно было бы вообще обойтись с помощью одной цели.
+
+Поэтому, чтобы лучше усвоить пройденный материал, рассмотрим еще один пример, в котором нам надо будет создать несколько страниц по разным макетам. В директории <code>example040</code> находятся 3 шаблона: <code>about.hbs</code>, <code>buttons.hbs</code>, <code>index.hbs</code>. Перед нами стоит задача - собрать все шаблоны с layout по умолчанию, но шаблон <code>about.hbs</code> нужно собрать с layout <code>with_sidebar</code>. Сами шаблоны взяты из предыдущих примеров и особого интереса не представляют.
+
+Вся работа для нас в данном случае будет производиться в <code>Gruntfile.js</code>. На лицо два различных набора опций для сборки. В одном случае должен быть один layout, в другом - другой. Раз так, то здесь нам понадобится использовать две разные цели.
+
+<code>Gruntfile.js</code>
+[js]
+example040a: {
+  files: {'<%= site.dest %>/example040/':
+    [
+      'example040/*.hbs',
+      '!example040/about.hbs'
+    ]
+  },
+  options: {
+    partials: 'example040/partials/*.hbs',
+    data: 'example040/data/*.json'
+  }
+},
+example040b: {
+  files: {'<%= site.dest %>/example040/': ['example040/about.hbs']},
+  options: {
+    partials: 'example040/partials/*.hbs',
+    data: 'example040/data/*.json',
+    layout: 'with_sidebar.hbs'
+  }
+}
+[/js]
+
+В первой цели на строках № 3-6 в качестве источников шаблонов указан массив. Первым элементом массива сказано взять все файлы с расширением <code>hbs</code>, вторым элементом из этого множества исключается шаблон <code>about.hbs</code> (обратите внимание на восклицательный знак в начале строки).
+
+Во второй цели в качестве исходного шаблона уже указан <code>about.hbs</code> и указаны опции для него. Также обратите внимание, что в обоих случаях названия директорий с исходными и итоговыми файлами соответственно равны между собой.
+
+В результате выполнения этого примера в директории <code>dist/example040</code> будут созданы 3 файла: <code>about.html</code>, <code>buttons.html</code>, <code>index.html</code>.

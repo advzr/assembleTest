@@ -7,10 +7,10 @@
   "partials": "templates/partials/*.hbs",
   "layoutdir": "templates/layouts",
   "layout": "default.hbs",
-  "flatten": "true",
+  "flatten": true,
   "prettify": {
     "indent": 2,
-    "condense": "true",
-    "newlines": "true"
+    "condense": true,
+    "newlines": true
   }
 }

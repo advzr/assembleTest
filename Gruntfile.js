@@ -18,9 +18,9 @@ module.exports = function(grunt) {
 
         flatten: '<%= site.flatten %>',
         prettify: '<%= site.prettify %>',
+        helpers: '<%= site.helpers %>',
         assets: '<%= site.assets %>',
         data: '<%= site.data %>',
-        helpers: '<%= site.helpers %>',
         partials: '<%= site.partials %>',
         layoutdir: '<%= site.layoutdir %>',
         layout: '<%= site.layout %>'
